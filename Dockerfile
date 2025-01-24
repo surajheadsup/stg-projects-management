@@ -6,7 +6,7 @@ FROM node:16.17.0-bullseye-slim
 # Any working directory can be chosen as per choice like '/' or '/home' etc
 WORKDIR /app
 
-COPY .env.example .env
+COPY .env .env
 
 COPY . .
 

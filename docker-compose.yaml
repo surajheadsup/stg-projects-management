@@ -1,11 +1,9 @@
-version: "3.3"
-
 volumes:
   mysql_data:
 
 services:
   sqldb:
-    image: mysql:5.7
+    image: mysql:latest
     container_name: helper-mysql
     volumes:
       - mysql_data:/var/lib/mysql
@@ -23,7 +21,7 @@ services:
       timeout: 10s
       retries: 3
   helper:
-    image: eloufirhatim/helper:latest
+    image: hcorptech/helper:latest
     container_name: helper-server
     environment:
       - DB_CONNECTION=mysql
