@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   sqldb:
     image: mysql:latest
@@ -55,7 +57,7 @@ services:
       - 8000:8000
     networks:
       - laravel
-      
+
   apache:
     image: httpd:latest  # Using the official httpd image from Docker Hub
     container_name: apache-proxy
@@ -80,6 +82,3 @@ networks:
 volumes:
   mysql_data:
   apache_logs:
-
-
-
