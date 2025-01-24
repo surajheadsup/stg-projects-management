@@ -1,8 +1,11 @@
-version: '3.8'
+version: "3.3"
+
+volumes:
+  mysql_data:
 
 services:
   sqldb:
-    image: mysql:latest
+    image: mysql:5.7
     container_name: helper-mysql
     volumes:
       - mysql_data:/var/lib/mysql
@@ -14,24 +17,15 @@ services:
     command: --default-storage-engine innodb
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-    networks:
-      - laravel
-
+      test: mysqladmin -p$$MYSQL_ROOT_PASSWORD ping -h localhost
+      interval: 20s
+      start_period: 10s
+      timeout: 10s
+      retries: 3
   helper:
-    image: hcorptech/helper:latest
+    image: eloufirhatim/helper:latest
     container_name: helper-server
     environment:
-      - APP_NAME="Headsup"
-      - APP_ENV=local
-      - APP_KEY=base64:+0xg6G92HAiiSxHp6THR+cu9jCttAc5jbbb7id2Rq8c=
-      - APP_DEBUG=true
-      - APP_URL=https://stg-projects.headsupcorporation.com
-      - APP_FORCE_HTTPS=true
       - DB_CONNECTION=mysql
       - DB_HOST=sqldb
       - DB_PORT=3306
@@ -39,46 +33,15 @@ services:
       - DB_USERNAME=helper
       - DB_PASSWORD=helper
       - MAIL_MAILER=smtp
-      - MAIL_HOST=smtp.gmail.com
-      - MAIL_PORT=587
-      - MAIL_USERNAME=tech@headsupcorporation.com
-      - MAIL_PASSWORD=jjscktfmiwbkuvzx
+      - MAIL_HOST=smtp.mailtrap.io
+      - MAIL_PORT=2525
+      - MAIL_USERNAME=your_username
+      - MAIL_PASSWORD=your_password
       - MAIL_ENCRYPTION=tls
     depends_on:
-      sqldb:
-        condition: service_healthy
-    restart: unless-stopped
-    command: >
-      sh -c "
-        php artisan migrate --force --seed &&
-        php artisan serve --host=0.0.0.0 --port=8000
-      "
+      - sqldb
+    restart: "no"
     ports:
       - 8000:8000
-    networks:
-      - laravel
-
-  apache:
-    image: httpd:latest  # Using the official httpd image from Docker Hub
-    container_name: apache-proxy
-    ports:
-      - 80:80
-      - 443:443
     volumes:
-      - ./apache-conf:/usr/local/apache2/conf/extra:ro
-      - /etc/letsencrypt/archive/stg-projects.headsupcorporation.com/fullchain1.pem:/etc/ssl/certs/fullchain.pem:ro
-      - /etc/letsencrypt/archive/stg-projects.headsupcorporation.com/privkey1.pem:/etc/ssl/private/privkey.pem:ro
-      - apache_logs:/usr/local/apache2/logs
-    depends_on:
-      - helper
-    networks:
-      - laravel
-    command: sh -c "cp /usr/local/apache2/conf/extra/httpd.conf /usr/local/apache2/conf/httpd.conf && httpd -D FOREGROUND"
-
-networks:
-  laravel:
-    driver: bridge
-
-volumes:
-  mysql_data:
-  apache_logs:
+      - /etc/localtime:/etc/localtime
