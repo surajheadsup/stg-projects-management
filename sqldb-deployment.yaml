@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: sqldb
+  name: sqldb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: sqldb
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: sqldb
+    spec:
+      containers:
+      - args:
+        - --default-storage-engine
+        - innodb
+        env:
+        - name: MYSQL_DATABASE
+          value: helper
+        - name: MYSQL_PASSWORD
+          value: helper
+        - name: MYSQL_ROOT_PASSWORD
+          value: helper
+        - name: MYSQL_USER
+          value: helper
+        image: mysql:latest
+        imagePullPolicy: ""
+        livenessProbe:
+          exec:
+            command:
+            - mysqladmin
+            - ping
+            - -h
+            - localhost
+            - -p
+          failureThreshold: 3
+          periodSeconds: 20
+          timeoutSeconds: 10
+        name: helper-mysql
+        resources: {}
+        volumeMounts:
+        - mountPath: /var/lib/mysql
+          name: mysql-data
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes:
+      - name: mysql-data
+        persistentVolumeClaim:
+          claimName: mysql-data
+status: {}

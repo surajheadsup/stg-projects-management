@@ -1,0 +1,21 @@
+<?php
+
+namespace {{ namespace }};
+
+use App\Settings\{{ settingsClass }};
+use Filament\Forms;
+use Filament\Pages\SettingsPage;
+
+class {{ class }} extends SettingsPage
+{
+    protected static ?string $navigationIcon = 'heroicon-o-cog';
+
+    protected static string $settings = {{ settingsClass }}::class;
+
+    protected function getFormSchema(): array
+    {
+        return [
+            // ...
+        ];
+    }
+}
