@@ -55,11 +55,9 @@ services:
       - 8000:8000
     networks:
       - laravel
-
+      
   apache:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: httpd:latest  # Using the official httpd image from Docker Hub
     container_name: apache-proxy
     ports:
       - 80:80
